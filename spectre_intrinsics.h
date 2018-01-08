@@ -18,9 +18,12 @@
 
 #define __dcbf(base, index)     \
   __asm__ ("dcbf %0, %1" : /*no result*/ : "b%" (index), "r" (base) : "memory")
+
 #define __mftb()                __mfspr(__SPR_TBL)
 #define __mftbu()               __mfspr(__SPR_TBU)
 #endif
+
+#define __get_mftb() ((uint64_t)__mftb() | ((uint64_t)__mftbu() << 32))
 
 #elif defined(__ARCH_ARM__)
 // TODO
@@ -46,5 +49,9 @@ static inline utin64_t __tstck() {
 #else
 #include <x86intrin.h>
 #endif
+
+unsigned int __x86_rdtscp_temp; /* unused */
+#define __get_rdtscp() ((uint64_t)__rdtscp(&__x86_rdtscp_temp))
+
 #endif
 #endif

