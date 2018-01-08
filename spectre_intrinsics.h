@@ -46,7 +46,7 @@ static inline utin64_t __tstck() {
 #ifdef _MSC_VER
 #include <intrin.h>
 #pragma optimize("gt",on)
-#else
+#elif defined(__GNUC__)
 #include <x86intrin.h>
 #endif
 
