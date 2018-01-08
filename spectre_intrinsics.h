@@ -25,6 +25,18 @@
 #elif defined(__ARCH_ARM__)
 // TODO
 
+#elif defined(__ARCH_S390X__)
+// FIXME: Untested
+#if defined(__GNUC__)
+#include <s390intrin.h>
+#endif
+
+static inline utin64_t __tstck() {
+	uint64_t tsc;
+	asm("\tstck\t%0\n" : "=Q" (tsc) : : "cc");
+	return tsc;
+}
+
 #elif defined(__ARCH_X86__)
 
 /* Load intrinsic headers for rdtscp and clflush */
