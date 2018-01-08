@@ -3,37 +3,12 @@
 #include <stdint.h>
 #include <time.h>
 
-#if defined(__powerpc__) || defined(__ppc__)  || defined(__ppc64__)
+#include "spectre_archs.h"
+#include "spectre_intrinsics.h"
 
-// PowerPC
-#define __ARCH_POWERPC__
+#if defined(__ARCH_POWERPC__)
 #define CACHE_HIT_THRESHOLD 1
-#include <ppc_intrinsics.h>
-
-#elif defined(__arm__) || defined(__thumb__) || defined(__aarch64__)
-
-// ARM
-#define __ARCH_ARM__
-
-#elif defined(__amd64__) || defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64) || defined(__i386__) || defined(_M_IX86) || defined(__X86__) || defined(__INTEL__) || defined(_X86_)
-
-// x86
-#define __ARCH_X86__
-#define CACHE_HIT_THRESHOLD 80
-/* Load intrinsic headers for rdtscp and clflush */
-#ifdef _MSC_VER
-#include <intrin.h>
-#pragma optimize("gt",on)
 #else
-#include <x86intrin.h>
-#endif
-
-#else
-// Unsupported CPU architecture
-#error Unsupported CPU architecture
-#endif
-
-#ifndef CACHE_HIT_THRESHOLD
 #define CACHE_HIT_THRESHOLD 80
 #endif
 
