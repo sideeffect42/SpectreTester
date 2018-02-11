@@ -35,7 +35,7 @@ const char *secret = "The Magic Words are Squeamish Ossifrage.";
 uint8_t temp = 0xff; /* Used so compiler won’t optimize out victim_function() */
 
 void __attribute__ ((noinline)) victim_function(size_t x) {
-	if (x < array1_size) {
+	if (x < array1_size) { /* only true for training runs */
 		temp &= array2[(array1[x] * 512)];
 	}
 }
