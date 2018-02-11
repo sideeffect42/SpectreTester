@@ -15,7 +15,7 @@ uint64_t __posix_gettime(void) {
 	struct timespec ts;
 
 	clock_gettime(CLOCK_MONOTONIC, &ts);
-	
+
 	/* return value converted to nsec */
 	return (uint64_t)((ts.tv_sec * 1000000000) + ts.tv_nsec);
 }
@@ -29,14 +29,14 @@ uint64_t __posix_gettime(void) {
 clock_serv_t __mach_cclock = 0;
 uint64_t __mach_gettime(void) {
 	mach_timespec_t mts;
-	
+
 	if (!__mach_cclock) {
 		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &__mach_cclock);
 	}
 
 	clock_get_time(__mach_cclock, &mts);
 	//mach_port_deallocate(mach_task_self(), cclock);
-	
+
 	/* return value converted to nsec */
 	return (uint64_t)((mts.tv_sec * 1000000000) + mts.tv_nsec);
 }
