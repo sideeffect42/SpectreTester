@@ -9,8 +9,6 @@
 #define NUM_ROUNDS 4
 #define CACHE_LINE_LEN 16
 
-unsigned int _value = 1; /* just some value */
-
 int main(void) {
 	unsigned int i, j;
 	uint32_t *values[CACHE_LINE_LEN];
