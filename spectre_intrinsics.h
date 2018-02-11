@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include "spectre_archs.h"
 
 #ifndef __SPECTRE_INTRINSICS__
