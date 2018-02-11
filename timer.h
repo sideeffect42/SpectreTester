@@ -56,7 +56,7 @@ uint64_t __mach_gettime(void) {
 #elif defined(__HAVE_MACH_GETTIME__)
 #define /* uint64_t */ __gettime(void)	__mach_gettime()
 #else
-#error Cannot get time!
+#warning Cannot get time!
 #endif
 
 #endif
