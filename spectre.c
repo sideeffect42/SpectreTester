@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <time.h>
 
 #include "spectre_archs.h"
@@ -183,6 +184,11 @@ int main(int argc, const char **argv) {
 
 	printf("String: '" BOLD "%s" RESET "'\n", recovered_string);
 	printf("temp = 0x%02x\n", temp);
+
+	if (!strcmp(secret, recovered_string)) {
+		/* vulnerable */
+		printf(BOLDRED "Your CPU is vulnerable to the Spectre attack!\n" RESET);
+	}
 
 	return EXIT_SUCCESS;
 }
