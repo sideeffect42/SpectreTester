@@ -9,6 +9,7 @@
 #include "spectre_intrinsics.h"
 #include "timer.h"
 #include "cache_latency.h"
+#define ARRLEN(var) (sizeof(var) / sizeof(*var))
 
 #define RESET       "\033[0m"
 #define BOLD        "\033[1m"         /* Bold font */
@@ -163,7 +164,7 @@ int main(int argc, const char **argv) {
 	int i, len = 40;
 	char *recovered_string;
 
-	for (i = 0; i < sizeof(array2); i++) {
+	for (i = 0; i < ARRLEN(array2); i++) {
 		/* write to array2 so in RAM not copy-on-write zero pages */
 		array2[i] = 1;
 	}
