@@ -141,7 +141,7 @@ int main(int argc, const char **argv) {
 	if (argc == 3) {
 		sscanf(argv[1], "%p", (void **)(&malicious_x));
 		malicious_x -= (size_t)array1; /* Convert input value into a pointer */
-		sscanf(argv[2], "%d", & len);
+		sscanf(argv[2], "%d", &len);
 	}
 
 	recovered_string = calloc(1, (len + 1));
