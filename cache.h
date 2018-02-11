@@ -1,9 +1,22 @@
-#ifndef __HAVE_CACHE_LATENCY_H__
-#define __HAVE_CACHE_LATENCY_H__
+#ifndef __HAVE_CACHE_H__
+#define __HAVE_CACHE_H__
 
 #include "spectre_archs.h"
 #include "spectre_intrinsics.h"
 #include "timer.h"
+
+/* FLUSH CACHE */
+
+#if defined(__ARCH_POWERPC__)
+#define /* void */ __flush_cache(mloc)	__dcbf(mloc, 0);
+#elif defined(__ARCH_X86__)
+/* intrinsic for clflush instruction */
+#define /* void */ __flush_cache(mloc)	_mm_clflush(mloc);
+#else
+#warning No cache flush implementation exists for your architecture!
+#endif
+
+/* CACHE LATENCY */
 
 #define NUM_ROUNDS 1
 #define CACHE_LINE_LEN 8

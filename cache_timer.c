@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "cache_latency.h"
+#include "cache.h"
 
 int main(void) {
 	int avg;

