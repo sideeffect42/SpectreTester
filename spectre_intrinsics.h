@@ -53,5 +53,34 @@ static inline utin64_t __tstck() {
 unsigned int __x86_rdtscp_temp; /* unused */
 #define __get_rdtscp() ((uint64_t)__rdtscp(&__x86_rdtscp_temp))
 
+static int __x86_rdtsc_call_num = 0;
+static inline uint64_t __get_rdtsc() {
+	register uint32_t cycles_high, cycles_low;
+
+	/* because we need the cpuid call to serialize rdtsc we want to make sure
+	 * that the time of cpuid is not included in the measured time */
+	if (((++__x86_rdtsc_call_num) % 2)) {
+		__asm__ volatile(
+			"cpuid\n\t"
+			"rdtsc\n\t"
+			"mov %%edx, %0\n\t"
+			"mov %%eax, %1\n\t"
+			: "=r"(cycles_high), "=r"(cycles_low)
+			:: "%rax", "%rbx", "%rcx", "%rdx"
+		);
+	} else {
+		__asm__ volatile(
+			"rdtsc\n\t"
+			"mov %%edx, %0\n\t"
+			"mov %%eax, %1\n\t"
+			"cpuid\n\t"
+			: "=r"(cycles_high), "=r"(cycles_low)
+			:: "%rax", "%rbx", "%rcx", "%rdx"
+		);
+	}
+
+	return (((uint64_t)cycles_high << 32) + cycles_low);
+}
+
 #endif
 #endif

@@ -50,7 +50,7 @@ uint64_t __mach_gettime(void) {
 #elif defined(__ARCH_S390X__)
 #define /* uint64_t */ __gettime(void)	__tstck()
 #elif defined(__ARCH_X86__)
-#define /* uint64_t */ __gettime(void)	__get_rdtscp()
+#define /* uint64_t */ __gettime(void)	__get_rdtsc()
 #elif defined(__HAVE_POSIX_GETTIME__)
 #define /* uint64_t */ __gettime(void)	__posix_gettime()
 #elif defined(__HAVE_MACH_GETTIME__)
