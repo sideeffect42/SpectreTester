@@ -174,8 +174,10 @@ int main(int argc, const char **argv) {
 	}
 
 	recovered_string = calloc(1, (len + 1));
-
-	if (recovered_string == NULL) { return EXIT_FAILURE; }
+	if (recovered_string == NULL) {
+		fprintf(stderr, "ERROR: Cannot allocate memory for recovered string!\n");
+		return EXIT_FAILURE;
+	}
 
 	printf("array1 = %p secret = %p\n", array1, secret);
 
