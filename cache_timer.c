@@ -11,26 +11,26 @@
 
 int main(void) {
 	unsigned int i, j;
-	uint32_t *values[CACHE_LINE_LEN];
+	void **values[CACHE_LINE_LEN];
 	register uint64_t time1, time2;
-	volatile uint32_t *value_ptr;
+	volatile void **value_ptr;
 
 	/* fill values with pointers */
 	for (i = 0; i < (CACHE_LINE_LEN - 1); ++i) {
-		values[i] = (uint32_t *)&(values[i+1]);
+		values[i] = (void **)&(values[i+1]);
 	}
-	values[(CACHE_LINE_LEN - 1)] = (uint32_t *)&(values[0]);
+	values[(CACHE_LINE_LEN - 1)] = (void **)&(values[0]);
 
 	uint64_t sum = 0;
 
 	for (i = 0; i < NUM_ROUNDS; ++i) {
-		value_ptr = (uint32_t *)&values;
+		value_ptr = values[0];
 		for (j = 0; j < CACHE_LINE_LEN; ++j) {
 			/* read timer (start) */
 			time1 = __gettime();
 
 			/* memory access to time */
-			value_ptr = (uint32_t *)(*value_ptr);
+			value_ptr = (void **)(*value_ptr);
 
 			/* read timer (end) */
 			time2 = __gettime();
