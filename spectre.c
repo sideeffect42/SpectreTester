@@ -193,7 +193,19 @@ int main(int argc, const char **argv) {
 
 	if (!strcmp(secret, recovered_string)) {
 		/* vulnerable */
-		printf(BOLDRED "Your CPU is vulnerable to the Spectre attack!\n" RESET);
+		printf(BOLDRED "Your CPU is vulnerable to the Spectre attack!" RESET "\n");
+	} else {
+		unsigned int levenshtein_distance;
+		for (i = (len - 1), levenshtein_distance = len; i >= 0; i--) {
+			if (secret[i] == recovered_string[i]) {
+				--levenshtein_distance;
+			}
+		}
+
+		if (levenshtein_distance < (len / 4)) {
+			/* likely vulnerable */
+			printf(BOLDRED "Your CPU is likely vulnerable to the Spectre attack!" RESET "\n");
+		}
 	}
 
 	return EXIT_SUCCESS;
