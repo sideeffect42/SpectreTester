@@ -7,6 +7,13 @@
 #include "spectre_intrinsics.h"
 #include "timer.h"
 
+#define RESET       "\033[0m"
+#define BOLD        "\033[1m"         /* Bold font */
+#define RED         "\033[31m"        /* Red font */
+#define GREEN       "\033[32m"        /* Green font */
+#define BOLDRED     "\033[1m\033[31m" /* Bold Red font */
+#define BOLDGREEN   "\033[1m\033[32m" /* Bold Green font */
+
 #if defined(__ARCH_POWERPC__)
 #define CACHE_HIT_THRESHOLD 1
 #else
@@ -165,7 +172,7 @@ int main(int argc, const char **argv) {
 		recovered_string[i] = (value[0] > 31 && value[0] < 127 ? value[0] : '?');
 	}
 
-	printf("String: '%s'\n", recovered_string);
+	printf("String: '" BOLD "%s" RESET "'\n", recovered_string);
 	printf("temp = 0x%02x\n", temp);
 
 	return EXIT_SUCCESS;
